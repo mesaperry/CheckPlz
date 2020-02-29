@@ -58,8 +58,99 @@ function writeUserData(userId, email, secret_key) {
 const fetch = require("node-fetch");
 const global_auth = "f7a6f17719994b80237fd372ca7735d1:839f1e2235496fd7f0fc266fb34a04e4";
 
-async function createNewUser(name, email) {
+
+
+async function sendCheckToUser(sender, recieverEmail) {
     try {
+
+    //first need to get the right info from firebase
+
+
+    //the below will probably go in the firebase callback
+    var data = `{\"recipient\":\"${reciever.get('${recieverEmail}')}\",\"name\":\"John Mayer\",\"amount\":5,\"description\":\"Test Check\"}`;
+        console.log(data)
+      let response = await fetch("https://sandbox.checkbook.io/v3/check/digital", {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'content-Type': 'application/json',
+            'authorization': `${sender}`
+        },
+        body: data,
+        });
+      let responseJson = await response.json();
+      console.log(responseJson)
+      return responseJson;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+ 
+
+
+
+
+
+
+
+async function verifyMicroDeposit(secret_key) {
+    try {
+
+    //first need to get the right info from firebase
+
+
+    //the below will probably go in the firebase callback
+    var data = "{\"amount_1\":0.07,\"amount_2\":0.15}";
+
+      let response = await fetch("https://sandbox.checkbook.io/v3/bank/verify", {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'content-Type': 'application/json',
+            'authorization': `${secret_key}`
+        },
+        body: data,
+        });
+      
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+//add bank account 
+async function addBankAccount(secret_key, accountNum , accountType) {
+    try {
+    
+    console.log(accountNum)
+    var data = `{\"routing\":\"021000021\",\"account\":\"${accountNum}\",\"type\":\"${accountType}\"}`;
+        console.log(data)
+        console.log(secret_key)
+      let response = await fetch("https://sandbox.checkbook.io/v3/bank", {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'content-Type': 'application/json',
+            'authorization': `${secret_key}`
+        },
+        body: data,
+        }).then( () => {
+            //here call verficiation
+            verifyMicroDeposit(secret_key);
+
+        });
+        let responseJson = await response
+        console.log(responseJson)
+        return responseJson;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+      
+  async function createNewUser(name, email) {
+    try {
+
+    
+    //before you do this add a check in the get all dictionary for this email
     
     var data = `{\"user_id\":\"${email}\",\"name\":\"${name}\"}`;
 
@@ -77,14 +168,20 @@ async function createNewUser(name, email) {
       let responseJson = await response.json();
       console.log(responseJson)
       console.log(typeof responseJson)
+
+      
       writeUserData(`${responseJson.id}`, `${email}`, `${responseJson.key}:${responseJson.secret}`);
+
+      addBankAccount(`${responseJson.key}:${responseJson.secret}`, `12340000`, 'CHECKING')
+
       return responseJson;
     } catch (error) {
       console.error(error);
     }
   }
 
-  createNewUser('vincent mayo', 'lebronlqeevincent@vincent.com')
+//   addBankAccount('96d386bb905a4b7993c8833571758b32:6Mr1I1xOVVDepOYBPf4b0jzRoq1XSN', '12340000', 'CHECKING')
+  createNewUser('MESA PERRY', 'msp@gitconnect.io')
 //   writeUserData('12312', 'email', 'name');
 // writeUserData('99911', 'faasdake@fake.com', '1asf234')
 
@@ -94,92 +191,6 @@ async function createNewUser(name, email) {
 //     //send to firebase thing
 //     //push this info to firebase
 //  });
-
-async function sendCheckToUser(sender, recieverEmail) {
-    try {
-
-    //first need to get the right info from firebase
-
-
-    //the below will probably go in the firebase callback
-    var data = `{\"recipient\":\"${reciever.get('${recieverEmail}')}\",\"name\":\"John Mayer\",\"amount\":5,\"description\":\"Test Check\"}`;
-
-      let response = await fetch("https://sandbox.checkbook.io/v3/check/digital", {
-        method: 'POST',
-        headers: {
-            'accept': 'application/json',
-            'content-Type': 'application/json',
-            'authorization': `${sender['key']}:${sender['secret']}`
-        },
-        body: data,
-        });
-      let responseJson = await response.json();
-      console.log(responseJson)
-      return responseJson;
-    } catch (error) {
-      console.error(error);
-    }
-  }
- 
-
-
-
-
-//add bank account 
-async function addBankAccount(user, accountNum , accountType) {
-    try {
-    
-    var data = `{\"routing\":\"021000021\",\"account\":\"${accountNum}\",\"type\":\"${accountType}\"}}`;
-
-      let response = await fetch("https://sandbox.checkbook.io/v3/bank", {
-        method: 'POST',
-        headers: {
-            'accept': 'application/json',
-            'content-Type': 'application/json',
-            'authorization': `${user['key']}:${user['secret']}`
-        },
-        body: data,
-        }).then( () => {
-            //here call verficiation
-
-        });
-      let responseJson = await response.json();
-      console.log(responseJson)
-      return responseJson;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-
-async function verifyMicroDeposit(user) {
-    try {
-
-    //first need to get the right info from firebase
-
-
-    //the below will probably go in the firebase callback
-    var data = `{\"recipient\":\"${reciever.get('user_id')}\",\"name\":\"John Mayer\",\"amount\":5,\"description\":\"Test Check\"}`;
-
-      let response = await fetch("https://sandbox.checkbook.io/v3/bank/verify", {
-        method: 'POST',
-        headers: {
-            'accept': 'application/json',
-            'content-Type': 'application/json',
-            'authorization': `${sender['key']}:${sender['secret']}`
-        },
-        body: data,
-        });
-      let responseJson = await response.json();
-      console.log(responseJson)
-      return responseJson;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-
-      
 
 
 // writeUserData(1, 'fake@fake.com', '1234')
