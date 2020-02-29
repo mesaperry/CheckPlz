@@ -1,3 +1,60 @@
+    
+var firebase = require("firebase/app");
+
+// Add the Firebase products that you want to use
+require("firebase/auth");
+require("firebase/database")
+
+
+// Your web app's Firebase configuration
+let firebaseConfig = {
+    apiKey: "AIzaSyAyQX877wOO217haEL0yRY4GREhXFFuT00",
+    authDomain: "hackillinois2020.firebaseapp.com",
+    databaseURL: "https://hackillinois2020.firebaseio.com",
+    projectId: "hackillinois2020",
+    storageBucket: "hackillinois2020.appspot.com",
+    messagingSenderId: "70394633571",
+    appId: "1:70394633571:web:9f8c54485d5240ad024756",
+    measurementId: "G-WM1X40BVL1"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+
+// key is the qr_id in this case and the child would whatever value you wanted
+// for example, key could be 12345 and child could be either email, price, or product
+
+// alternatively, if you're looking for a secret key, key would be the user id (some long string)
+// and child would be "secret_key" or "email" if you were trying to get an email from a user id
+function read(key, child) {
+    var rootRef = firebase.database().ref().child(key);
+
+    //window.alert("test");
+    // window.alert(rootRef)
+    // console.log(rootRef)
+
+    rootRef.on("value", snap => {
+        var email = snap.child(child).val();
+        console.log(email)
+    }).then(() => {firebase.database().goOffline();});
+    
+}
+
+// read(12345, 'email')
+
+function writeUserData(userId, email, secret_key) {
+    firebase.database().goOnline();
+
+    console.log("ATTEMPT DATA WRITE")
+    console.log(userId)
+    firebase.database().ref(userId).set({
+        email: email,
+        secret_key: secret_key
+    }).then(() => {firebase.database().goOffline();});;
+
+    
+}
+
 const fetch = require("node-fetch");
 const global_auth = "f7a6f17719994b80237fd372ca7735d1:839f1e2235496fd7f0fc266fb34a04e4";
 
@@ -14,28 +71,38 @@ async function createNewUser(name, email) {
             'authorization': global_auth
         },
         body: data,
-        });
+        }).then(   
+
+        );
       let responseJson = await response.json();
       console.log(responseJson)
+      console.log(typeof responseJson)
+      writeUserData(`${responseJson.id}`, `${email}`, `${responseJson.key}:${responseJson.secret}`);
       return responseJson;
     } catch (error) {
       console.error(error);
     }
   }
 
-result = createNewUser('liaamameya', 'lasdfasdaamameya@poogle.com').then(function(result) {
-    //result has the data
-    //send to firebase thing
-    //push this info to firebase
- });
+  createNewUser('vincent mayo', 'lebronlqeevincent@vincent.com')
+//   writeUserData('12312', 'email', 'name');
+// writeUserData('99911', 'faasdake@fake.com', '1asf234')
 
-async function sendCheckToUser(sender, reciever) {
+
+// result = createNewUser('liaamameya', 'lasdfasdaamameya@poogle.com').then(function(result) {
+//     //result has the data
+//     //send to firebase thing
+//     //push this info to firebase
+//  });
+
+async function sendCheckToUser(sender, recieverEmail) {
     try {
 
     //first need to get the right info from firebase
-    
+
+
     //the below will probably go in the firebase callback
-    var data = `{\"recipient\":\"${reciever.get('user_id')}\",\"name\":\"John Mayer\",\"amount\":5,\"description\":\"Test Check\"}`;
+    var data = `{\"recipient\":\"${reciever.get('${recieverEmail}')}\",\"name\":\"John Mayer\",\"amount\":5,\"description\":\"Test Check\"}`;
 
       let response = await fetch("https://sandbox.checkbook.io/v3/check/digital", {
         method: 'POST',
@@ -110,6 +177,14 @@ async function verifyMicroDeposit(user) {
       console.error(error);
     }
   }
+
+
+      
+
+
+// writeUserData(1, 'fake@fake.com', '1234')
+
+
 
 
   // function createNewServer(name, email) {
