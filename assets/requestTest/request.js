@@ -67,7 +67,7 @@ async function sendCheckToUser(sender, recieverEmail) {
 
 
     //the below will probably go in the firebase callback
-    var data = `{\"recipient\":\"${reciever.get('${recieverEmail}')}\",\"name\":\"John Mayer\",\"amount\":5,\"description\":\"Test Check\"}`;
+    var data = `{\"recipient\":\"${recieverEmail}\",\"name\":\"John Mayer\",\"amount\":5,\"description\":\"Test Check\"}`;
         console.log(data)
       let response = await fetch("https://sandbox.checkbook.io/v3/check/digital", {
         method: 'POST',
@@ -89,7 +89,7 @@ async function sendCheckToUser(sender, recieverEmail) {
 
 
 
-
+sendCheckToUser('23d1092da427469085d72cb201674e63:wKtFwrKpLvAlJeRpnyJGWkkP6DTgVA', 'labalawren@gitconnect.io')
 
 
 
@@ -181,7 +181,7 @@ async function addBankAccount(secret_key, accountNum , accountType) {
   }
 
 //   addBankAccount('96d386bb905a4b7993c8833571758b32:6Mr1I1xOVVDepOYBPf4b0jzRoq1XSN', '12340000', 'CHECKING')
-  createNewUser('MESA PERRY', 'msp@gitconnect.io')
+//   createNewUser('MESA PERRY', 'msp@gitconnect.io')
 //   writeUserData('12312', 'email', 'name');
 // writeUserData('99911', 'faasdake@fake.com', '1asf234')
 
