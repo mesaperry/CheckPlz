@@ -7,31 +7,69 @@ const Form = t.form.Form;
 
 import styles from './styles.js';
 import submitLogin from './submitlogin.js';
+import getSecretKey from './getsecretkey.js';
+import sendTransaction from './sendtransaction.js';
 
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {page: 'home'};
+    this.state = {
+      page: 'home',
+      product: undefined,
+      secret_key: undefined,
+    };
 
-    this.goTo = this.goTo.bind(this);
+    this.setPage = this.setPage.bind(this);
+    this.setProduct = this.setProduct.bind(this);
+    this.setSecretKey = this.setSecretKey.bind(this);
+    this.getTransaction = this.getTransaction.bind(this);
+    this.funct = {
+      setPage: this.setPage,
+      setProduct: this.setProduct,
+      setSecretKey: this.setSecretKey,
+      getTransaction: this.getTransaction
+    };
   }
 
-  goTo(target) {
-    this.setState({page: target});
+  setPage(page) {
+    this.setState({page: page});
+  }
+
+  setProduct(product) {
+    this.setState({product: product});
+  }
+
+  setSecretKey(secret_key) {
+    this.setState({secret_key: secret_key});
+  }
+
+  getTransaction() {
+    return ({
+      secret_key: this.state.secret_key,
+      price: this.state.product.price,
+      recipient: this.state.product.vendor_email,
+      product_name: this.state.product.name
+    });
   }
 
   render() {
     if (this.state.page === 'home') {
-      return <Home goTo={this.goTo}/>;
+      return <Home funct={this.funct} />;
     }
     if (this.state.page === 'vendor') {
-      return <Vendor goTo={this.goTo}/>;
+      return <Vendor funct={this.funct} />;
     }
     if (this.state.page === 'buyer') {
-      return <QRScanner goTo={this.goTo}/>;
+      return <QRScanner funct={this.funct} />;
     }
     if (this.state.page === 'login') {
-      return <Login goTo={this.goTo}/>;
+      return <Login funct={this.funct} />;
+    }
+    if (this.state.page === 'confirm') {
+      return <Confirm funct={this.funct} />
+    }
+    if (this.state.page === 'complete') {
+      return <Complete funct={this.funct} />
     }
   }
 };
@@ -39,7 +77,7 @@ export default class App extends Component {
 class Home extends Component {
   constructor(props) {
     super(props);
-    this.goTo = props.goTo;
+    this.funct = props.funct;
   }
 
   render() {
@@ -48,13 +86,13 @@ class Home extends Component {
         <Text style={styles.title}>SKULL FUKKER</Text>
         <View style={styles.buttonContainer}>
           <Button
-            onPress={() => this.goTo('vendor')}
+            onPress={() => this.funct.setPage('vendor')}
             title="Vendor"
           />
         </View>
         <View style={styles.buttonContainer}>
           <Button
-            onPress={() => this.goTo('buyer')}
+            onPress={() => this.funct.setPage('buyer')}
             title="Buyer"
           />
         </View>
@@ -66,7 +104,7 @@ class Home extends Component {
 class Vendor extends Component {
   constructor(props) {
     super(props);
-    this.goTo = props.goTo;
+    this.funct = props.funct;
   }
 
   render() {
@@ -75,7 +113,7 @@ class Vendor extends Component {
         <Text>Vendor placeholder</Text>
         <View style={styles.buttonContainer}>
           <Button
-            onPress={() => this.goTo('home')}
+            onPress={() => this.funct.setPage('home')}
             title="Go back"
           />
         </View>
@@ -87,7 +125,7 @@ class Vendor extends Component {
 class Login extends Component {
   constructor(props) {
     super(props);
-    this.goTo = props.goTo;
+    this.funct = props.funct;
     this.state = {
       email: '',
       password: '',
@@ -96,12 +134,14 @@ class Login extends Component {
   }
 
   processLogin(email, password) {
-    var key = submitLogin(email, password);
-    if (!key) {
+    var uid = submitLogin(email, password);
+    if (!uid || !email) {
       this.setState({invalid: true});
       return;
     }
-    
+    var secret_key = getSecretKey(uid);
+    this.funct.setSecretKey(secret_key);
+    this.funct.setPage('confirm');
   }
 
   render() {
@@ -126,10 +166,61 @@ class Login extends Component {
         </View>
         <View style={styles.buttonContainer}>
           <Button
-            onPress={() => this.goTo('home')}
+            onPress={() => this.funct.setPage('home')}
             title="Go back"
           />
         </View>
+      </View>
+    );
+  }
+}
+
+class Confirm extends Component {
+  constructor(props) {
+    super(props);
+    this.funct = props.funct;
+  }
+
+  render() {
+    var transaction = this.funct.getTransaction();
+    return (
+      <View style={styles.home}>
+        <Text style={styles.title}>Confirmation</Text>
+        <Text style={{fontSize: 15, margin: 5}}>Product name</Text>
+        <Text>{transaction.product_name}</Text>
+        <Text style={{fontSize: 15, margin: 5}}>Transaction price</Text>
+        <Text>{transaction.price}</Text>
+        <Text style={{fontSize: 15, margin: 5}}>Recipient</Text>
+        <Text>{transaction.recipient}</Text>
+        <View style={styles.buttonContainer}>
+          <Button
+            onPress={() => {
+              sendTransaction(transaction);
+              this.funct.setPage('complete');
+            }}
+            title="Confirm"
+          />
+        </View>
+      </View>
+    );
+  }
+}
+
+class Complete extends Component {
+  constructor(props) {
+    super(props);
+    this.funct = props.funct;
+  }
+  render() {
+    return (
+      <View style={styles.home}>
+      <Text style={styles.title}>Transaction complete</Text>
+      <View style={styles.buttonContainer}>
+        <Button
+          onPress={() => this.funct.setPage('home')}
+          title="Go home"
+        />
+      </View>
       </View>
     );
   }

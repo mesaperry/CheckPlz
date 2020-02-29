@@ -16,10 +16,12 @@ import {
 
 import styles from './styles';
 
+import getProduct from './getproduct.js'
+
 export default class QRScanner extends React.Component {
   constructor(props) {
     super(props);
-    this.goTo = props.goTo;
+    this.funct = props.funct;
   }
 
   state = {
@@ -77,13 +79,13 @@ export default class QRScanner extends React.Component {
                 <Button title = { 'Scan again' } onPress = {() => this.setState({scanned: false})}/>
               </View>
               <View style={styles.buttonContainer}>
-                <Button title = { 'Purchase' } onPress = {() => this.goTo('login')}/>
+                <Button title = { 'Purchase' } onPress = {() => this.funct.setPage('login')}/>
               </View>
             </View>)
           }
           <View style={styles.buttonContainer}>
             <Button
-              onPress={() => this.goTo('home')}
+              onPress={() => this.funct.setPage('home')}
               title="Go back"
             />
           </View>
@@ -100,5 +102,7 @@ export default class QRScanner extends React.Component {
       scanned: true,
       data: data
     });
+    var product = getProduct(data);
+    this.funct.setProduct(product);
   };
 }
