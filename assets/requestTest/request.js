@@ -227,7 +227,10 @@ async function addBankAccount(secret_key, accountNum , accountType) {
 
   }
 
-console.log(emailToSecret("rob@gitconnect.io"))
+// console.log(emailToSecret("rob@gitconnect.io"))
+
+
+
 
 //   addBankAccount('96d386bb905a4b7993c8833571758b32:6Mr1I1xOVVDepOYBPf4b0jzRoq1XSN', '12340000', 'CHECKING')
 //   createNewUser('MESA PERRY', 'msp@gitconnect.io')

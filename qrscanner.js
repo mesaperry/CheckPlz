@@ -16,18 +16,22 @@ import {
 
 import styles from './styles';
 
-import getProduct from './getproduct.js'
+import RESTfunct from './requestsOfficial.js';
 
 export default class QRScanner extends React.Component {
   constructor(props) {
     super(props);
     this.funct = props.funct;
+    this.state = {
+      hasCameraPermission: null,
+      scanned: false,
+      product: {
+        name: '',
+        vendor_email: '',
+        price: ''
+      }
+    }
   }
-
-  state = {
-    hasCameraPermission: null,
-    scanned: false,
-  };
 
   async componentDidMount() {
     this.getPermissionsAsync();
@@ -42,6 +46,7 @@ export default class QRScanner extends React.Component {
     });
   };
 
+
   render() {
     const {
       hasCameraPermission,
@@ -55,12 +60,13 @@ export default class QRScanner extends React.Component {
     if (hasCameraPermission === false) {
       return <Text > No access to camera </Text>;
     }
+    
     return (
       <View style = {styles.scanner}>
         <View style = {styles.scanner_top}>
           { scanned && (
             <View style = {styles.home}>
-              <Text>{this.state.data}</Text>
+              <Text style={{fontSize: 15, margin: 5}}>Scanned</Text>
             </View>
           )}
         </View>
@@ -94,15 +100,19 @@ export default class QRScanner extends React.Component {
     );
   }
 
-  handleBarCodeScanned = ({
-    type,
-    data
-  }) => {
-    this.setState({
-      scanned: true,
-      data: data
+  handleBarCodeScanned = ({type, data}) => {
+    this.setState({ scanned: true })
+    RESTfunct.getProduct.name(data, (name_) => {
+      this.state.product.name = name_;
+      this.funct.setProduct('name', name_);
     });
-    var product = getProduct(data);
-    this.funct.setProduct(product);
+    RESTfunct.getProduct.vendor_email(data, (vendor_email_) => {
+      this.state.product.vendor_email = vendor_email_;
+      this.funct.setProduct('vendor_email', vendor_email_);
+    });
+    RESTfunct.getProduct.price(data, (price_) => {
+      this.state.product.price = price_;
+      this.funct.setProduct('price', price_);
+    });
   };
 }

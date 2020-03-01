@@ -1,5 +1,3 @@
-
-
 var firebase = require("firebase/app");
 
 // Add the Firebase products that you want to use
@@ -19,7 +17,7 @@ let firebaseConfig = {
     measurementId: "G-WM1X40BVL1"
 };
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+try {firebase.initializeApp(firebaseConfig);} catch{}
 
 
 // key is the qr_id in this case and the child would whatever value you wanted
@@ -27,7 +25,9 @@ firebase.initializeApp(firebaseConfig);
 
 // alternatively, if you're looking for a secret key, key would be the user id (some long string)
 // and child would be "secret_key" or "email" if you were trying to get an email from a user id
-function read(key, child) {
+function read(key, child, callback) {
+    firebase.database().goOnline();
+
     var rootRef = firebase.database().ref().child(key);
 
     
@@ -35,16 +35,11 @@ function read(key, child) {
     // window.alert(rootRef)
     // console.log(rootRef)
 
-    let email;
     rootRef.on("value", snap => {
-        email = snap.child(child).val();
-        console.log(email)
+        var target = snap.child(child).val();
         firebase.database().goOffline();
-        return email;
+        callback(target);
     });
-
-    console.log(email)
-    return email;
 
     // firebase.database().goOffline();
     
@@ -192,57 +187,48 @@ async function addBankAccount(secret_key, accountNum , accountType) {
 
 
 
-  async function emailToSecret(email) {
-
-    try {
-
+  async function emailToSecret(email, callback) {
     
     //before you do this add a check in the get all dictionary for this email
     
 
-      let response = await fetch("https://sandbox.checkbook.io/v3/user/list", {
-        method: 'GET',
-        headers: {
-            'accept': 'application/json',
-            'content-Type': 'application/json',
-            'authorization': global_auth
-        },
-        }).then(   
+    let response = await fetch("https://sandbox.checkbook.io/v3/user/list", {
+    method: 'GET',
+    headers: {
+        'accept': 'application/json',
+        'content-Type': 'application/json',
+        'authorization': global_auth
+    },
+    }).then(   
 
-        );
-        let responseJson = await response.json();
-        // console.log(responseJson)
-        // console.log(typeof responseJson)
+    );
+    let responseJson = await response.json();
+    // console.log(responseJson)
+    // console.log(typeof responseJson)
 
 
-        //now get the email
-        for (i = 0; i < responseJson.users.length; i++) {
-            // console.log(responseJson.users[i].user_id)
-            if (responseJson.users[i].user_id == email) {
-                // console.log(responseJson.users[i].id);
-                // console.log(read('c5b37975a6584413bce649c3911aa9c9', 'secret_key'))
-                return (read(`${responseJson.users[i].id}`, 'secret_key'))
-            }
-        } 
-        return null;
-        // return responseJson;
-    } catch (error) {
-      console.error(error);
-    }
+    //now get the email
+    for (i = 0; i < responseJson.users.length; i++) {
+        // console.log(responseJson.users[i].user_id);
+        if (responseJson.users[i].user_id == email) {
+            // console.log(responseJson.users[i].id);
+            // console.log(read('c5b37975a6584413bce649c3911aa9c9', 'secret_key'))
+            read(`${responseJson.users[i].id}`, 'secret_key', callback);
+            return;
+        }
+    } 
+    throw 'No email found'
+    // return responseJson;
 
   }
 
 
-
 var RESTfunct = {
     emailToSecret: emailToSecret,
-    getProduct: (qr_id) => {
-        console.log("GET PRODUCT RUNNING")
-        return {
-            name: read(qr_id, 'product'),
-            vendor_email: read(qr_id, 'email'),
-            price: read(qr_id, 'price')
-        };
+    getProduct: {
+        name: (qr_id, callback) => {read(qr_id, 'product', callback);},
+        vendor_email: (qr_id, callback) => {read(qr_id, 'email', callback);},
+        price: (qr_id, callback) => {read(qr_id, 'price', callback);}
     },
     sendTransaction: sendCheckToUser
 };
