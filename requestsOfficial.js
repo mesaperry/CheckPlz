@@ -187,6 +187,7 @@ async function addBankAccount(secret_key, accountNum , accountType) {
     }
   }
 
+//   createNewUser("Barack Obama", "barackobama@whitehouse.gov")
 
 
   async function emailToSecret(email, callback) {

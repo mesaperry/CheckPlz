@@ -90,7 +90,7 @@ class Home extends Component {
       <View style={styles.home}>
         <Text style={styles.title}>CheckPlz</Text>
         <View style={styles.buttonContainer}>
-          <Button
+          <Button style={styles.roundButton}
             onPress={() => this.funct.setPage('vendor')}
             title="Vendor"
           />
@@ -203,6 +203,12 @@ class Confirm extends Component {
               this.funct.setPage('complete');
             }}
             title="Confirm"
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button
+            onPress={() => this.funct.setPage('home')}
+            title="Go back"
           />
         </View>
       </View>

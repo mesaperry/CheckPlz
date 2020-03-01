@@ -83,15 +83,15 @@ export default class QRScanner extends React.Component {
       );
     }
     else {
-      while (this.state.product.name === undefined) {
+      while (this.state.product.price === undefined) {
         var waste = 1 + 2;
       }
       return (
         <View style={styles.scanner_alt}>
           <View style={styles.scanner_alt_top}>
-            <Text>{this.state.product.name}</Text>
-            <Text>{this.state.product.price}</Text>
-            <Text>{this.state.product.vendor_email}</Text>
+            <Text style={{fontSize: 15, margin: 5}}>{this.state.product.name}</Text>
+            <Text style={{fontSize: 15, margin: 5}}>{this.state.product.price}</Text>
+            <Text style={{fontSize: 15, margin: 5}}>{this.state.product.vendor_email}</Text>
           </View>
           <WebView
             source={{ uri: 'https://alexguan8.github.io/arhost/' + this.state.qr_id }}
@@ -99,7 +99,10 @@ export default class QRScanner extends React.Component {
           />
           <View style={styles.doubleButtons}>
             <View style={styles.buttonContainer}>
-              <Button title = { 'Scan again' } onPress = {() => this.setState({scanned: false})}/>
+              <Button title = { 'Scan again' } onPress = {() => {
+                this.setState({scanned: false});
+                this.state.product.price = undefined;
+              }}/>
             </View>
             <View style={styles.buttonContainer}>
               <Button title = { 'Purchase' } onPress = {() => this.funct.setPage('login')}/>

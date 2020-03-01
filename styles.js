@@ -28,7 +28,10 @@ export default styles = StyleSheet.create({
 		fontSize: 30
 	},
 	buttonContainer: {
-		margin: 20
+		margin: 20		
+	},
+	roundButton: {
+		
 	},
 	doubleButtons: {
 		flexDirection: 'row',
