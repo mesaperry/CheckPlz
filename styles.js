@@ -10,12 +10,17 @@ export default styles = StyleSheet.create({
 	scanner: {
 		flex: 1,
 		flexDirection: 'column',
-		justifyContent: 'space-between'
+		justifyContent: 'flex-end'
 	},
-	scanner_top: {
-		flex: .3,
+	scanner_alt: {
+		flex: 1,
 		flexDirection: 'column',
-		justifyContent: 'space-between',
+		justifyContent: 'space-around'
+	},
+	scanner_alt_top: {
+		height: 200,
+		flexDirection: 'column',
+		justifyContent: 'center',
 		alignItems: 'center'
 	},
 	title: {

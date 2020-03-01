@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
+import { WebView } from 'react-native-webview';
 
 import {
   BarCodeScanner
@@ -29,7 +30,8 @@ export default class QRScanner extends React.Component {
         name: '',
         vendor_email: '',
         price: ''
-      }
+      },
+      qr_id: ''
     }
   }
 
@@ -60,35 +62,17 @@ export default class QRScanner extends React.Component {
     if (hasCameraPermission === false) {
       return <Text > No access to camera </Text>;
     }
-    
-    return (
-      <View style = {styles.scanner}>
-        <View style = {styles.scanner_top}>
-          { scanned && (
-            <View style = {styles.home}>
-              <Text style={{fontSize: 15, margin: 5}}>Scanned</Text>
-            </View>
-          )}
-        </View>
 
-        <BarCodeScanner onBarCodeScanned = {
-          scanned ? undefined : this.handleBarCodeScanned
-        }
-        style = {
-          StyleSheet.absoluteFillObject
-        }/>
-
-        <View>
-          { scanned && (
-            <View style={styles.doubleButtons}>
-              <View style={styles.buttonContainer}>
-                <Button title = { 'Scan again' } onPress = {() => this.setState({scanned: false})}/>
-              </View>
-              <View style={styles.buttonContainer}>
-                <Button title = { 'Purchase' } onPress = {() => this.funct.setPage('login')}/>
-              </View>
-            </View>)
+    if (!scanned) {
+      return (
+        <View style = {styles.scanner}>
+          <BarCodeScanner onBarCodeScanned = {
+            scanned ? undefined : this.handleBarCodeScanned
           }
+          style = {
+            StyleSheet.absoluteFillObject
+          }/>
+
           <View style={styles.buttonContainer}>
             <Button
               onPress={() => this.funct.setPage('home')}
@@ -96,12 +80,37 @@ export default class QRScanner extends React.Component {
             />
           </View>
         </View>
-      </View>
-    );
+      );
+    }
+    else {
+      while (this.state.product.name === undefined) {
+        var waste = 1 + 2;
+      }
+      return (
+        <View style={styles.scanner_alt}>
+          <View style={styles.scanner_alt_top}>
+            <Text>{this.state.product.name}</Text>
+            <Text>{this.state.product.price}</Text>
+            <Text>{this.state.product.vendor_email}</Text>
+          </View>
+          <WebView
+            source={{ uri: 'https://alexguan8.github.io/arhost/' + this.state.qr_id }}
+            style={{ height:720 }}
+          />
+          <View style={styles.doubleButtons}>
+            <View style={styles.buttonContainer}>
+              <Button title = { 'Scan again' } onPress = {() => this.setState({scanned: false})}/>
+            </View>
+            <View style={styles.buttonContainer}>
+              <Button title = { 'Purchase' } onPress = {() => this.funct.setPage('login')}/>
+            </View>
+          </View>
+        </View>
+      )
+    }
   }
 
   handleBarCodeScanned = ({type, data}) => {
-    this.setState({ scanned: true })
     RESTfunct.getProduct.name(data, (name_) => {
       this.state.product.name = name_;
       this.funct.setProduct('name', name_);
@@ -113,6 +122,10 @@ export default class QRScanner extends React.Component {
     RESTfunct.getProduct.price(data, (price_) => {
       this.state.product.price = price_;
       this.funct.setProduct('price', price_);
+    });
+    this.setState({
+      scanned: true,
+      qr_id: data
     });
   };
 }

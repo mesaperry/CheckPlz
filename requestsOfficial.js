@@ -34,9 +34,10 @@ function read(key, child, callback) {
     //window.alert("test");
     // window.alert(rootRef)
     // console.log(rootRef)
-
+    // console.log(key)
     rootRef.on("value", snap => {
         var target = snap.child(child).val();
+        // console.log(target);
         firebase.database().goOffline();
         callback(target);
     });
@@ -49,8 +50,8 @@ function read(key, child, callback) {
 function writeUserData(userId, email, secret_key) {
     firebase.database().goOnline();
 
-    console.log("ATTEMPT DATA WRITE")
-    console.log(userId)
+    // console.log("ATTEMPT DATA WRITE")
+    // console.log(userId)
     firebase.database().ref(userId).set({
         email: email,
         secret_key: secret_key
@@ -66,13 +67,14 @@ const global_auth = "f7a6f17719994b80237fd372ca7735d1:839f1e2235496fd7f0fc266fb3
 
 async function sendCheckToUser(sender, recieverEmail, amount) {
     try {
+        // console.log('line', sender, recieverEmail, amount);
 
     //first need to get the right info from firebase
 
 
     //the below will probably go in the firebase callback
     var data = `{\"recipient\":\"${recieverEmail}\",\"name\":\"John Mayer\",\"amount\":${amount},\"description\":\"Test Check\"}`;
-        console.log(data)
+        // console.log(data)
       let response = await fetch("https://sandbox.checkbook.io/v3/check/digital", {
         method: 'POST',
         headers: {
@@ -83,7 +85,7 @@ async function sendCheckToUser(sender, recieverEmail, amount) {
         body: data,
         });
       let responseJson = await response.json();
-      console.log(responseJson)
+    //   console.log(responseJson)
       return responseJson;
     } catch (error) {
       console.error(error);
@@ -126,10 +128,10 @@ async function verifyMicroDeposit(secret_key) {
 async function addBankAccount(secret_key, accountNum , accountType) {
     try {
     
-    console.log(accountNum)
+    // console.log(accountNum)
     var data = `{\"routing\":\"021000021\",\"account\":\"${accountNum}\",\"type\":\"${accountType}\"}`;
-        console.log(data)
-        console.log(secret_key)
+        // console.log(data)
+        // console.log(secret_key)
       let response = await fetch("https://sandbox.checkbook.io/v3/bank", {
         method: 'POST',
         headers: {
@@ -144,7 +146,7 @@ async function addBankAccount(secret_key, accountNum , accountType) {
 
         });
         let responseJson = await response
-        console.log(responseJson)
+        // console.log(responseJson)
         return responseJson;
     } catch (error) {
       console.error(error);
@@ -171,8 +173,8 @@ async function addBankAccount(secret_key, accountNum , accountType) {
 
         );
       let responseJson = await response.json();
-      console.log(responseJson)
-      console.log(typeof responseJson)
+    //   console.log(responseJson)
+    //   console.log(typeof responseJson)
 
       
       writeUserData(`${responseJson.id}`, `${email}`, `${responseJson.key}:${responseJson.secret}`);

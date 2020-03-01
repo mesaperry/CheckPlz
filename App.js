@@ -8,6 +8,9 @@ const Form = t.form.Form;
 import styles from './styles.js';
 
 import RESTfunct from './requestsOfficial.js';
+
+import { Camera } from 'expo-camera';
+
     
 
 
@@ -85,7 +88,7 @@ class Home extends Component {
   render() {
     return (
       <View style={styles.home}>
-        <Text style={styles.title}>SKULL FUKKER</Text>
+        <Text style={styles.title}>CheckPlz</Text>
         <View style={styles.buttonContainer}>
           <Button
             onPress={() => this.funct.setPage('vendor')}
@@ -154,6 +157,7 @@ class Login extends Component {
           onChangeText={(text) => this.setState({email: text})}
         />
         <TextInput
+          secureTextEntry={true}
           style={styles.input}
           placeholder='Password'
           onChangeText={(text) => this.setState({password: text})}
@@ -195,7 +199,7 @@ class Confirm extends Component {
         <View style={styles.buttonContainer}>
           <Button
             onPress={() => {
-              RESTfunct.sendTransaction(transaction);
+              RESTfunct.sendTransaction(transaction.secret_key, transaction.recipient, transaction.price);
               this.funct.setPage('complete');
             }}
             title="Confirm"
